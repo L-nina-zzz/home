@@ -266,7 +266,7 @@ body.sidebar-pinned .pin-btn{color:var(--accent);background:var(--accent-soft)}
 .clock .sec{font-size:36px;color:var(--text-3);font-weight:400;margin-left:4px}
 .clock-en{font-family:var(--font-en);font-size:24px;font-weight:500;color:var(--accent);margin-top:2px}
 .date{margin-top:8px;font-size:14px;color:var(--text-2)}
-.search{margin:28px auto 0;max-width:560px;display:flex;align-items:center;gap:6px;
+.search{position:relative;margin:28px auto 0;max-width:560px;display:flex;align-items:center;gap:6px;
   background:var(--surface);border:1px solid var(--border-2);border-radius:999px;padding:6px 6px 6px 8px;
   transition:border-color .15s,box-shadow .15s}
 .search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
@@ -427,6 +427,76 @@ body.sidebar-pinned .pin-btn{color:var(--accent);background:var(--accent-soft)}
 .cat{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}
 .cat.in{opacity:1;transform:none}
 
+/* ---------- AI 助手 ---------- */
+.ai-trigger{
+  width:38px;height:38px;border-radius:999px;flex-shrink:0;
+  background:var(--accent-soft);color:var(--accent-ink);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:background .2s,color .2s,transform .2s;
+}
+.ai-trigger:hover{background:var(--accent);color:#fff;transform:scale(1.06)}
+.ai-trigger.active{background:var(--accent);color:#fff}
+.ai-mask{
+  position:fixed;inset:0;background:rgba(10,16,14,.4);backdrop-filter:blur(2px);
+  opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:88;
+}
+.ai-mask.open{opacity:1;pointer-events:auto}
+.ai-chat{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.97);
+  width:min(600px,92vw);height:min(620px,82vh);
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;z-index:89;overflow:hidden;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s ease,transform .22s ease;
+}
+.ai-chat.open{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+.ai-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);cursor:move;user-select:none}
+.ai-switch{
+  display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;
+  background:var(--accent-soft);color:var(--accent-ink);font-size:12px;font-weight:500;
+  border:1px solid var(--border);transition:background .2s;flex-shrink:0;cursor:pointer;
+}
+.ai-switch:hover{border-color:var(--accent)}
+.ai-switch .ic{transition:transform .5s cubic-bezier(.34,1.56,.64,1);flex-shrink:0}
+.ai-switch.switching .ic{transform:rotate(360deg)}
+.ai-title{flex:1;font-size:14px;font-weight:500;color:var(--text);text-align:center}
+.ai-close{
+  width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--text-3);transition:background .15s,color .15s;flex-shrink:0;cursor:pointer;
+}
+.ai-close:hover{background:var(--surface-2);color:var(--text)}
+.ai-clear{
+  width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  color:var(--text-3);transition:background .15s,color .15s;flex-shrink:0;cursor:pointer;
+}
+.ai-clear:hover{background:var(--surface-2);color:var(--text)}
+.ai-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.ai-msg{max-width:84%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;animation:aiIn .2s ease}
+.ai-msg.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.ai-msg.bot{align-self:flex-start;background:var(--surface-2);color:var(--text);border-bottom-left-radius:4px}
+.ai-typing{display:flex;gap:4px;align-items:center;padding:10px 12px}
+.ai-typing .dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:aiDots 1.2s ease-in-out infinite}
+.ai-typing .dot:nth-child(2){animation-delay:.15s}
+.ai-typing .dot:nth-child(3){animation-delay:.3s}
+@keyframes aiDots{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+@keyframes aiIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ai-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border)}
+.ai-input input{
+  flex:1;min-width:0;padding:9px 12px;border:1px solid var(--border-2);border-radius:999px;
+  background:var(--surface);color:var(--text);font-size:13px;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.ai-input input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.ai-input button{
+  padding:0 16px;border-radius:999px;background:var(--accent);color:#fff;font-size:13px;font-weight:500;
+  transition:background .15s;flex-shrink:0;cursor:pointer;
+}
+.ai-input button:hover{background:var(--accent-hover)}
+[data-style="doodle"] .ai-trigger:hover,
+[data-style="doodle"] .ai-trigger.active{color:#2c7a7a}
+[data-style="doodle"] .ai-msg.user{color:#2c7a7a}
+[data-style="doodle"] .ai-input button{color:#2c7a7a}
+
 /* ---------- 响应式 ---------- */
 @media (max-width:900px){
   body.sidebar-hover .app,body.sidebar-pinned .app,body.sidebar-open .app{padding-left:0}
@@ -553,6 +623,9 @@ body.sidebar-pinned .pin-btn{color:var(--accent);background:var(--accent-soft)}
       <div class="clock-en" id="clockEn"></div>
       <div class="date" id="date"></div>
       <div class="search">
+        <button class="ai-trigger" id="aiFab" title="AI 助手" aria-label="AI 助手">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.9 2.4 2.4.9-2.4.9L19 21.6l-.9-2.4-2.4-.9 2.4-.9z"/></svg>
+        </button>
         <div class="engine">
           <button class="engine-btn" id="engineBtn">
             <span id="engineLabel">必应</span>
@@ -564,6 +637,25 @@ body.sidebar-pinned .pin-btn{color:var(--accent);background:var(--accent-soft)}
         <button class="go" id="searchGo" title="搜索">
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11a4 4 0 100-8 4 4 0 000 8zM10 10l4 4"/></svg>
         </button>
+        <div class="ai-mask" id="aiMask"></div>
+        <div class="ai-chat" id="aiChat" role="dialog" aria-label="AI 助手">
+          <div class="ai-head">
+            <button class="ai-switch" id="aiSwitch" title="切换模型">
+              <svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M3 21v-5h5"/><path d="M21 8V3h-5"/></svg>
+              <span class="ai-model" id="aiModelName">GLM-4.7-Flash</span>
+            </button>
+            <span class="ai-title">AI 助手</span>
+            <button class="ai-clear" id="aiClear" title="清空对话">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+            </button>
+            <button class="ai-close" id="aiClose" aria-label="关闭">×</button>
+          </div>
+          <div class="ai-msgs" id="aiMsgs"></div>
+          <div class="ai-input">
+            <input id="aiInput" type="text" placeholder="输入消息，回车发送" autocomplete="off" />
+            <button id="aiSend">发送</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -636,6 +728,7 @@ body.sidebar-pinned .pin-btn{color:var(--accent);background:var(--accent-soft)}
 </div>
 
 <div class="toast" id="toast"></div>
+
 <input type="file" id="importFile" accept="application/json" hidden>
 
 <script>
@@ -1208,6 +1301,112 @@ sidebarEl.addEventListener("mouseleave",function(){
   }
 });
 $("sideBackdrop").addEventListener("click",function(){document.body.classList.remove("sidebar-open")});
+
+/* ---------- AI 助手 ---------- */
+var AI_KEY = "09cde220ee654fbeab43eab75bd3d37d.3KhHHWkuFH0AfbIV";
+var AI_MODELS = [
+  {id:"glm-4.7-flash", name:"GLM-4.7-Flash"},
+  {id:"glm-4-flash-250414", name:"GLM-4-Flash"}
+];
+var aiIdx = 0;
+var aiHistory = [];
+
+function aiSwitchModel(){
+  aiIdx = (aiIdx + 1) % AI_MODELS.length;
+  $("aiModelName").textContent = AI_MODELS[aiIdx].name;
+  aiHistory = [];
+  var sw = $("aiSwitch");
+  sw.classList.remove("switching");
+  void sw.offsetWidth;
+  sw.classList.add("switching");
+  setTimeout(function(){ sw.classList.remove("switching"); }, 520);
+  toast("已切换到 " + AI_MODELS[aiIdx].name);
+}
+function aiAddMsg(role, text){
+  var div = document.createElement("div");
+  div.className = "ai-msg " + role;
+  div.textContent = text;
+  $("aiMsgs").appendChild(div);
+  $("aiMsgs").scrollTop = $("aiMsgs").scrollHeight;
+  return div;
+}
+function aiCall(cb){
+  fetch("https://open.bigmodel.cn/api/paas/v4/chat/completions", {
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+AI_KEY},
+    body:JSON.stringify({model:AI_MODELS[aiIdx].id, messages:aiHistory, temperature:0.7})
+  }).then(function(r){return r.json()}).then(function(d){
+    var m = d.choices && d.choices[0] && d.choices[0].message;
+    var txt = (m && m.content) || (d.error && d.error.message) || "出错了，请稍后再试";
+    cb(txt);
+  }).catch(function(){ cb("请求失败，请检查网络"); });
+}
+function aiSend(){
+  var q = $("aiInput").value.trim();
+  if(!q) return;
+  $("aiInput").value = "";
+  aiAddMsg("user", q);
+  aiHistory.push({role:"user", content:q});
+  var typing = document.createElement("div");
+  typing.className = "ai-msg bot ai-typing";
+  typing.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+  $("aiMsgs").appendChild(typing);
+  $("aiMsgs").scrollTop = $("aiMsgs").scrollHeight;
+  aiCall(function(reply){
+    typing.className = "ai-msg bot";
+    typing.textContent = reply;
+    aiHistory.push({role:"assistant", content:reply});
+  });
+}
+var aiPos = null;
+function aiSetOpen(open){
+  $("aiChat").classList.toggle("open", open);
+  $("aiMask").classList.toggle("open", open);
+  $("aiFab").classList.toggle("active", open);
+  if(open){
+    if(aiPos){
+      $("aiChat").style.left = aiPos.left + "px";
+      $("aiChat").style.top = aiPos.top + "px";
+      $("aiChat").style.transform = "none";
+    }
+    $("aiInput").focus();
+  }
+}
+$("aiFab").addEventListener("click", function(){
+  aiSetOpen(!$("aiChat").classList.contains("open"));
+});
+$("aiClose").addEventListener("click", function(){ aiSetOpen(false); });
+$("aiMask").addEventListener("click", function(){ aiSetOpen(false); });
+$("aiClear").addEventListener("click", function(){
+  aiHistory = [];
+  $("aiMsgs").innerHTML = "";
+  toast("对话已清空");
+});
+$("aiSwitch").addEventListener("click", aiSwitchModel);
+$("aiSend").addEventListener("click", aiSend);
+$("aiInput").addEventListener("keydown", function(e){ if(e.key === "Enter") aiSend(); });
+var aiDrag = {on:false, ox:0, oy:0, lx:0, ly:0};
+$("aiHead").addEventListener("mousedown", function(e){
+  if(e.target.closest("button")) return;
+  aiDrag.on = true;
+  aiDrag.ox = e.clientX; aiDrag.oy = e.clientY;
+  var r = $("aiChat").getBoundingClientRect();
+  aiDrag.lx = r.left; aiDrag.ly = r.top;
+  $("aiChat").style.transform = "none";
+  $("aiChat").style.left = r.left + "px";
+  $("aiChat").style.top = r.top + "px";
+});
+document.addEventListener("mousemove", function(e){
+  if(!aiDrag.on) return;
+  var x = aiDrag.lx + (e.clientX - aiDrag.ox);
+  var y = aiDrag.ly + (e.clientY - aiDrag.oy);
+  x = Math.max(8, Math.min(x, window.innerWidth - 60));
+  y = Math.max(8, Math.min(y, window.innerHeight - 40));
+  $("aiChat").style.left = x + "px";
+  $("aiChat").style.top = y + "px";
+  aiPos = {left:x, top:y};
+});
+document.addEventListener("mouseup", function(){ aiDrag.on = false; });
 
 /* ---------- 启动 ---------- */
 (function(){
