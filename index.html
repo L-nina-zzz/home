@@ -1554,6 +1554,19 @@ document.addEventListener("mouseup", function(){ aiDrag.on = false; });
 /* ---------- 启动 ---------- */
 (function(){
   var p=new URLSearchParams(location.search);
+  /* 自动确保 zzz 分类存在（按 url 去重合并，缺啥补啥，不覆盖已有书签） */
+  (function(){
+    var zz=zzzCat(), seen={}, changed=false;
+    state.cats.forEach(function(c){c.items.forEach(function(it){seen[it.url]=1})});
+    var hit=state.cats.filter(function(c){return c.id==="zzz"})[0];
+    if(hit){
+      var add=zz.items.filter(function(it){if(seen[it.url])return false;seen[it.url]=1;return true});
+      if(add.length){hit.items=hit.items.concat(add);changed=true}
+    }else{
+      state.cats.push(zz);changed=true;
+    }
+    if(changed)save();
+  })();
   if(p.get("theme")==="dark"||p.get("theme")==="light"){state.settings.theme=p.get("theme");save()}
   if(p.get("pin")==="1"){state.settings.sidebarPinned=true;save()}
   if(p.get("style")==="doodle"){state.settings.style="doodle";state.settings.theme="light"}
