@@ -459,6 +459,27 @@ body.sidebar-pinned .pin-btn{color:var(--accent);background:var(--accent-soft)}
 .ai-switch:hover{border-color:var(--accent)}
 .ai-switch .ic{transition:transform .5s cubic-bezier(.34,1.56,.64,1);flex-shrink:0}
 .ai-switch.switching .ic{transform:rotate(360deg)}
+.ai-switch-wrap{position:relative;flex-shrink:0}
+.ai-switch .arrow{transition:transform .25s ease;flex-shrink:0}
+.ai-switch.open .arrow{transform:rotate(180deg)}
+.ai-model-menu{
+  position:absolute;top:calc(100% + 8px);left:0;min-width:280px;max-width:320px;max-height:340px;overflow-y:auto;
+  background:var(--surface);border:1px solid var(--border-2);border-radius:12px;box-shadow:var(--shadow);
+  padding:6px;display:none;z-index:70;
+}
+.ai-model-menu.open{display:block}
+.ai-model-opt{
+  display:flex;flex-direction:column;gap:2px;width:100%;padding:8px 12px;border-radius:9px;
+  text-align:left;cursor:pointer;transition:background .12s;
+}
+.ai-model-opt:hover{background:var(--surface-2)}
+.ai-model-opt.on{background:var(--accent-soft)}
+.ai-model-opt .mn{font-size:13px;color:var(--text);font-weight:500}
+.ai-model-opt .note{font-size:11px;color:var(--text-3);line-height:1.4}
+.ai-model-opt.add{
+  flex-direction:row;align-items:center;gap:6px;border-top:1px dashed var(--border);
+  margin-top:4px;color:var(--accent-ink);font-size:13px;
+}
 .ai-close{
   width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
   font-size:18px;color:var(--text-3);transition:background .15s,color .15s;flex-shrink:0;cursor:pointer;
@@ -639,10 +660,14 @@ body.sidebar-pinned .pin-btn{color:var(--accent);background:var(--accent-soft)}
         <div class="ai-mask" id="aiMask"></div>
         <div class="ai-chat" id="aiChat" role="dialog" aria-label="AI 助手">
           <div class="ai-head" id="aiHead">
-            <button class="ai-switch" id="aiSwitch" title="切换模型">
-              <svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M3 21v-5h5"/><path d="M21 8V3h-5"/></svg>
-              <span class="ai-model" id="aiModelName">GLM-4.7-Flash</span>
-            </button>
+            <div class="ai-switch-wrap">
+              <button class="ai-switch" id="aiSwitch" title="切换模型">
+                <svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M3 21v-5h5"/><path d="M21 8V3h-5"/></svg>
+                <span class="ai-model" id="aiModelName">GLM-4.7-Flash</span>
+                <svg class="arrow" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3.5L5 6.5L8 3.5"/></svg>
+              </button>
+              <div class="ai-model-menu" id="aiModelMenu"></div>
+            </div>
             <button class="ai-clear" id="aiClear" title="清空对话">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
             </button>
@@ -652,6 +677,23 @@ body.sidebar-pinned .pin-btn{color:var(--accent);background:var(--accent-soft)}
           <div class="ai-input">
             <input id="aiInput" type="text" placeholder="输入消息，回车发送" autocomplete="off" />
             <button id="aiSend">发送</button>
+          </div>
+        </div>
+        <div class="mask" id="aiKeyMask">
+          <div class="modal">
+            <h3>添加模型 API Key</h3>
+            <div class="field"><label>预设模型</label><select id="aiKeyPreset">
+              <option value="deepseek">DeepSeek（deepseek-chat）</option>
+              <option value="custom">OpenAI 兼容 / 自定义</option>
+            </select></div>
+            <div class="field"><label>模型 ID</label><input type="text" id="aiKeyModel" placeholder="如 deepseek-chat"></div>
+            <div class="field"><label>API Key</label><input type="text" id="aiKeyValue" placeholder="sk-..."></div>
+            <div class="field"><label>接口地址（可选）</label><input type="text" id="aiKeyBase" placeholder="https://api.deepseek.com/v1/"></div>
+            <div class="hint">模型 Key 只保存在浏览器本地，不会上传到任何服务器。</div>
+            <div class="modal-actions">
+              <button class="btn btn-ghost" id="aiKeyCancel">取消</button>
+              <button class="btn btn-primary" id="aiKeySave">保存</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1302,23 +1344,42 @@ $("sideBackdrop").addEventListener("click",function(){document.body.classList.re
 
 /* ---------- AI 助手 ---------- */
 var AI_KEY = "09cde220ee654fbeab43eab75bd3d37d.3KhHHWkuFH0AfbIV";
-var AI_MODELS = [
-  {id:"glm-4.7-flash", name:"GLM-4.7-Flash"},
-  {id:"glm-4-flash-250414", name:"GLM-4-Flash"}
+var AI_BUILTIN = [
+  {id:"glm-4.7-flash", name:"GLM-4.7-Flash", note:"200K 上下文 · 主力免费 · 通用强", base:"https://open.bigmodel.cn/api/paas/v4/", key:AI_KEY},
+  {id:"glm-4-flash-250414", name:"GLM-4-Flash", note:"128K 上下文 · 长文本多语言", base:"https://open.bigmodel.cn/api/paas/v4/", key:AI_KEY}
 ];
+var AI_KEY_LS = "ai.custom.keys.v1";
 var aiIdx = 0;
 var aiHistory = [];
 
-function aiSwitchModel(){
-  aiIdx = (aiIdx + 1) % AI_MODELS.length;
-  $("aiModelName").textContent = AI_MODELS[aiIdx].name;
+function aiGetCustom(){
+  try{ return JSON.parse(localStorage.getItem(AI_KEY_LS)||"[]") }catch(e){ return [] }
+}
+function aiSaveCustom(list){ try{ localStorage.setItem(AI_KEY_LS, JSON.stringify(list)) }catch(e){} }
+function aiAllModels(){ return AI_BUILTIN.concat(aiGetCustom()) }
+function aiCurrent(){ return aiAllModels()[aiIdx] || AI_BUILTIN[0] }
+
+function aiRenderMenu(){
+  var all = aiAllModels();
+  var html = all.map(function(m, i){
+    return '<button class="ai-model-opt'+(i===aiIdx?" on":"")+'" data-mi="'+i+'"><span class="mn">'+m.name+'</span><span class="note">'+(m.note||"自定义模型")+'</span></button>';
+  }).join("");
+  html += '<button class="ai-model-opt add" id="aiMenuAdd"><span>＋</span> 添加模型 API Key</button>';
+  $("aiModelMenu").innerHTML = html;
+}
+function aiSetMenu(open){
+  $("aiModelMenu").classList.toggle("open", open);
+  $("aiSwitch").classList.toggle("open", open);
+  if(open) aiRenderMenu();
+}
+function aiSelectModel(i){
+  aiIdx = i;
+  var m = aiAllModels()[i];
+  if(!m) return;
+  $("aiModelName").textContent = m.name;
   aiHistory = [];
-  var sw = $("aiSwitch");
-  sw.classList.remove("switching");
-  void sw.offsetWidth;
-  sw.classList.add("switching");
-  setTimeout(function(){ sw.classList.remove("switching"); }, 520);
-  toast("已切换到 " + AI_MODELS[aiIdx].name);
+  aiSetMenu(false);
+  toast("已切换到 " + m.name);
 }
 function aiAddMsg(role, text){
   var div = document.createElement("div");
@@ -1329,15 +1390,16 @@ function aiAddMsg(role, text){
   return div;
 }
 function aiCall(cb){
-  fetch("https://open.bigmodel.cn/api/paas/v4/chat/completions", {
+  var m = aiCurrent();
+  fetch(m.base + "chat/completions", {
     method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":"Bearer "+AI_KEY},
-    body:JSON.stringify({model:AI_MODELS[aiIdx].id, messages:aiHistory, temperature:0.7})
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+m.key},
+    body:JSON.stringify({model:m.id, messages:aiHistory, temperature:0.7})
   }).then(function(r){return r.json()}).then(function(d){
-    var m = d.choices && d.choices[0] && d.choices[0].message;
-    var txt = (m && m.content) || (d.error && d.error.message) || "出错了，请稍后再试";
+    var msg = d.choices && d.choices[0] && d.choices[0].message;
+    var txt = (msg && msg.content) || (d.error && d.error.message) || "出错了，请稍后再试";
     cb(txt);
-  }).catch(function(){ cb("请求失败，请检查网络"); });
+  }).catch(function(){ cb("请求失败，请检查网络或 Key"); });
 }
 function aiSend(){
   var q = $("aiInput").value.trim();
@@ -1380,9 +1442,47 @@ $("aiClear").addEventListener("click", function(){
   $("aiMsgs").innerHTML = "";
   toast("对话已清空");
 });
-$("aiSwitch").addEventListener("click", aiSwitchModel);
 $("aiSend").addEventListener("click", aiSend);
 $("aiInput").addEventListener("keydown", function(e){ if(e.key === "Enter") aiSend(); });
+// 模型下拉 + 添加 Key（事件委托）
+document.addEventListener("click", function(e){
+  var opt = e.target.closest("[data-mi]");
+  if(opt){ aiSelectModel(+opt.dataset.mi); return; }
+  if(e.target.closest("#aiMenuAdd")){ openAiKeyModal(); return; }
+  if(e.target.closest("#aiSwitch")){ aiSetMenu(!$("aiModelMenu").classList.contains("open")); return; }
+  if(!e.target.closest(".ai-switch-wrap") && !e.target.closest("#aiKeyMask")){ aiSetMenu(false); }
+});
+// 添加模型 API Key 弹窗
+function openAiKeyModal(){
+  $("aiKeyPreset").value = "deepseek";
+  $("aiKeyModel").value = "";
+  $("aiKeyValue").value = "";
+  $("aiKeyBase").value = "";
+  $("aiKeyMask").classList.add("open");
+}
+function closeAiKeyModal(){ $("aiKeyMask").classList.remove("open") }
+$("aiKeyPreset").addEventListener("change", function(){
+  if(this.value==="deepseek"){
+    $("aiKeyModel").value = "deepseek-chat";
+    $("aiKeyBase").value = "https://api.deepseek.com/v1/";
+  }else{
+    $("aiKeyModel").value = "";
+    $("aiKeyBase").value = "https://api.openai.com/v1/";
+  }
+});
+$("aiKeyCancel").addEventListener("click", closeAiKeyModal);
+$("aiKeySave").addEventListener("click", function(){
+  var name = $("aiKeyModel").value.trim();
+  var key = $("aiKeyValue").value.trim();
+  if(!name || !key){ toast("请填写模型 ID 和 API Key"); return; }
+  var base = ($("aiKeyBase").value.trim() || "https://api.openai.com/v1/").replace(/\/+$/,"") + "/";
+  var list = aiGetCustom();
+  list.push({id:name, name:name, note:"自定义 · " + name, base:base, key:key, origin:"custom"});
+  aiSaveCustom(list);
+  closeAiKeyModal();
+  aiSetMenu(true);
+  toast("已添加模型 " + name);
+});
 var aiDrag = {on:false, ox:0, oy:0, lx:0, ly:0};
 $("aiHead").addEventListener("mousedown", function(e){
   if(e.target.closest("button")) return;
