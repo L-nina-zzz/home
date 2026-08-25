@@ -337,6 +337,7 @@ body.sidebar-pinned .pin-btn{color:var(--accent);background:var(--accent-soft)}
 .cat{margin-bottom:30px}
 .cat-head{display:flex;align-items:center;gap:9px;margin-bottom:12px;cursor:pointer;user-select:none}
 .cat-arrow{width:7px;height:7px;border-right:2px solid var(--text-3);border-bottom:2px solid var(--text-3);transform:rotate(45deg);flex-shrink:0;transition:transform .2s ease;margin-right:-1px;opacity:.7}
+.cat-tip{font-size:11px;color:var(--text-3);opacity:.75}
 .cat.collapsed .cat-arrow{transform:rotate(-45deg)}
 .cat.collapsed .grid{display:none}
 .cat-head .nav-dot{width:9px;height:9px}
@@ -988,7 +989,7 @@ function renderCats(){
   var html="";
   state.cats.forEach(function(c){
     html+='<div class="cat'+(c.collapsed?" collapsed":"")+'" id="cat-'+esc(c.id)+'">';
-    html+='<div class="cat-head"><span class="cat-arrow" aria-hidden="true"></span><span class="nav-dot" style="background:'+esc(c.color)+'"></span><span class="cat-name">'+esc(c.name)+'</span><span class="cat-count">'+c.items.length+' 个</span><span class="cat-ops"><button data-act="edit-cat" data-id="'+esc(c.id)+'">改名</button><button data-act="del-cat" data-id="'+esc(c.id)+'">删除</button></span></div>';
+    html+='<div class="cat-head" title="点击展开/收起"><span class="cat-arrow" aria-hidden="true"></span><span class="nav-dot" style="background:'+esc(c.color)+'"></span><span class="cat-name">'+esc(c.name)+'</span><span class="cat-count">'+c.items.length+' 个</span>'+(c.collapsed?'<span class="cat-tip">点击展开</span>':'')+'<span class="cat-ops"><button data-act="edit-cat" data-id="'+esc(c.id)+'">改名</button><button data-act="del-cat" data-id="'+esc(c.id)+'">删除</button></span></div>';
     html+='<div class="grid" data-cat="'+esc(c.id)+'">';
     c.items.forEach(function(it){
       html+='<div class="card" draggable="true" data-id="'+esc(it.id)+'" data-cat="'+esc(c.id)+'" data-url="'+esc(it.url)+'">';
